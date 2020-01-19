@@ -103,11 +103,11 @@ case class KafkaAdminClientActor(config: KafkaAdminClientActorConfig) extends Ba
     props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerListStr)
     if(config.clusterContext.config.saslMechanism.nonEmpty){
       props.put(SaslConfigs.SASL_MECHANISM, config.clusterContext.config.saslMechanism.get.stringId)
-      log.info(s"SASL Mechanism =${config.clusterContext.config.saslMechanism.get}")
+      log.debug(s"SASL Mechanism =${config.clusterContext.config.saslMechanism.get}")
     }
     if(config.clusterContext.config.jaasConfig.nonEmpty){
       props.put(SaslConfigs.SASL_JAAS_CONFIG, config.clusterContext.config.jaasConfig.get)
-      log.info(s"SASL JAAS config=${config.clusterContext.config.jaasConfig.get}")
+      log.debug(s"SASL JAAS config=${config.clusterContext.config.jaasConfig.get}")
     }
     log.info(s"Creating admin client with security protocol=${config.clusterContext.config.securityProtocol.stringId} , broker list : $brokerListStr")
     AdminClient.create(props)
