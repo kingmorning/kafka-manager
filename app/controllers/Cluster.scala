@@ -124,6 +124,7 @@ class Cluster (val messagesApi: MessagesApi, val kafkaManagerContext: KafkaManag
       , "securityProtocol" -> nonEmptyText.verifying(validateSecurityProtocol)
       , "saslMechanism" -> optional(text).verifying(validateSASLmechanism)
       , "jaasConfig" -> optional(text)
+      , "bootstrapServers" -> optional(text)
     )(ClusterConfig.apply)(ClusterConfig.customUnapply)
   )
 
@@ -168,6 +169,7 @@ class Cluster (val messagesApi: MessagesApi, val kafkaManagerContext: KafkaManag
       , "securityProtocol" -> nonEmptyText.verifying(validateSecurityProtocol)
       , "saslMechanism" -> optional(text).verifying(validateSASLmechanism)
       , "jaasConfig" -> optional(text)
+      , "bootstrapServers" -> optional(text)
     )(ClusterOperation.apply)(ClusterOperation.customUnapply)
   )
 
@@ -188,6 +190,7 @@ class Cluster (val messagesApi: MessagesApi, val kafkaManagerContext: KafkaManag
       ,false
       ,Option(defaultTuning)
       ,PLAINTEXT
+      ,None
       ,None
       ,None
     )
@@ -239,7 +242,8 @@ class Cluster (val messagesApi: MessagesApi, val kafkaManagerContext: KafkaManag
             cc.tuning,
             cc.securityProtocol.stringId,
             cc.saslMechanism.map(_.stringId),
-            cc.jaasConfig
+            cc.jaasConfig,
+            cc.bootstrapServers
           ))
         })).withHeaders("X-Frame-Options" -> "SAMEORIGIN")
       }
@@ -265,6 +269,7 @@ class Cluster (val messagesApi: MessagesApi, val kafkaManagerContext: KafkaManag
             clusterConfig.securityProtocol.stringId,
             clusterConfig.saslMechanism.map(_.stringId),
             clusterConfig.jaasConfig,
+            clusterConfig.bootstrapServers,
             clusterConfig.logkafkaEnabled,
             clusterConfig.activeOffsetCacheEnabled,
             clusterConfig.displaySizeEnabled
@@ -336,6 +341,7 @@ class Cluster (val messagesApi: MessagesApi, val kafkaManagerContext: KafkaManag
               clusterOperation.clusterConfig.securityProtocol.stringId,
               clusterOperation.clusterConfig.saslMechanism.map(_.stringId),
               clusterOperation.clusterConfig.jaasConfig,
+              clusterOperation.clusterConfig.bootstrapServers,
               clusterOperation.clusterConfig.logkafkaEnabled,
               clusterOperation.clusterConfig.activeOffsetCacheEnabled,
               clusterOperation.clusterConfig.displaySizeEnabled

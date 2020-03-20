@@ -494,6 +494,7 @@ class KafkaManagerActor(kafkaManagerConfig: KafkaManagerActorConfig)
         && newConfig.securityProtocol == currentConfig.securityProtocol
         && newConfig.saslMechanism == currentConfig.saslMechanism
         && newConfig.jaasConfig == currentConfig.jaasConfig
+        && newConfig.bootstrapServers == currentConfig.bootstrapServers
       ) {
         //nothing changed
         false

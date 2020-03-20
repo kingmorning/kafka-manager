@@ -90,11 +90,17 @@ case class KafkaAdminClientActor(config: KafkaAdminClientActorConfig) extends Ba
 
   private def createAdminClient(bl: BrokerList): AdminClient = {
     val targetBrokers : IndexedSeq[BrokerIdentity] = bl.list
-    val brokerListStr: String = targetBrokers.map {
-      b =>
-        val port = b.endpoints(config.clusterContext.config.securityProtocol)
-        s"${b.host}:$port"
-    }.mkString(",")
+    var brokerListStr: String = ""
+    if(config.clusterContext.config.bootstrapServers.nonEmpty){
+      brokerListStr = config.clusterContext.config.bootstrapServers.get
+    }
+    else{
+      brokerListStr = targetBrokers.map {
+        b =>
+          val port = b.endpoints(config.clusterContext.config.securityProtocol)
+          s"${b.host}:$port"
+      }.mkString(",")
+    }
     val props = new Properties()
     config.consumerProperties.foreach {
       cp => props.putAll(cp)
@@ -249,11 +255,17 @@ case class KafkaManagedOffsetCache(clusterContext: ClusterContext
 
   private[this] def createKafkaConsumer(): Consumer[Array[Byte], Array[Byte]] = {
     val hostname = InetAddress.getLocalHost.getHostName
-    val brokerListStr: String = bootstrapBrokerList.list.map {
-      b =>
-        val port = b.endpoints(clusterContext.config.securityProtocol)
-        s"${b.host}:$port"
-    }.mkString(",")
+    var brokerListStr: String = ""
+    if(clusterContext.config.bootstrapServers.nonEmpty){
+      brokerListStr = clusterContext.config.bootstrapServers.get
+    }
+    else{
+      brokerListStr = bootstrapBrokerList.list.map {
+        b =>
+          val port = b.endpoints(clusterContext.config.securityProtocol)
+          s"${b.host}:$port"
+      }.mkString(",")
+    }
     val props: Properties = new Properties()
     props.put(GROUP_ID_CONFIG, s"KMOffsetCache-$hostname")
     props.put(BOOTSTRAP_SERVERS_CONFIG, brokerListStr)
@@ -268,10 +280,10 @@ case class KafkaManagedOffsetCache(clusterContext: ClusterContext
     props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, clusterContext.config.securityProtocol.stringId)
     if(clusterContext.config.saslMechanism.nonEmpty){
       props.put(SaslConfigs.SASL_MECHANISM, clusterContext.config.saslMechanism.get.stringId)
-      info(s"SASL Mechanism =${clusterContext.config.saslMechanism.get}")
+      debug(s"SASL Mechanism =${clusterContext.config.saslMechanism.get}")
       if(clusterContext.config.jaasConfig.nonEmpty){
         props.put(SaslConfigs.SASL_JAAS_CONFIG, clusterContext.config.jaasConfig.get)
-        info(s"SASL JAAS config=${clusterContext.config.jaasConfig.get}")
+        debug(s"SASL JAAS config=${clusterContext.config.jaasConfig.get}")
       }
     }
     Try {
@@ -1479,11 +1491,15 @@ class KafkaStateActor(config: KafkaStateActorConfig) extends BaseClusterQueryCom
                 // Use secure endpoint if available
                 if(kaConfig.clusterContext.config.saslMechanism.nonEmpty){
                   consumerProperties.put(SaslConfigs.SASL_MECHANISM, kaConfig.clusterContext.config.saslMechanism.get.stringId)
-                  log.info(s"SASL Mechanism =${kaConfig.clusterContext.config.saslMechanism.get}")
+                  log.debug(s"SASL Mechanism =${kaConfig.clusterContext.config.saslMechanism.get}")
                 }
                 if(kaConfig.clusterContext.config.jaasConfig.nonEmpty){
                   consumerProperties.put(SaslConfigs.SASL_JAAS_CONFIG, kaConfig.clusterContext.config.jaasConfig.get)
-                  log.info(s"SASL JAAS config=${kaConfig.clusterContext.config.jaasConfig.get}")
+                  log.debug(s"SASL JAAS config=${kaConfig.clusterContext.config.jaasConfig.get}")
+                }
+                if(kaConfig.clusterContext.config.bootstrapServers.nonEmpty){
+                  consumerProperties.put(BOOTSTRAP_SERVERS_CONFIG, kaConfig.clusterContext.config.bootstrapServers.get)
+                  log.debug(s"bootstrap servers=${kaConfig.clusterContext.config.bootstrapServers.get}")
                 }
                 var kafkaConsumer: Option[KafkaConsumer[Any, Any]] = None
                 try {

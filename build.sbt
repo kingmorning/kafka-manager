@@ -5,7 +5,7 @@
 name := """kafka-manager"""
 
 /* For packaging purposes, -SNAPSHOT MUST contain a digit */
-version := "1.3.3.23"
+version := "1.3.3.24"
 
 scalaVersion := "2.11.8"
 
@@ -75,6 +75,7 @@ dockerfile in docker := {
 
   new Dockerfile {
     from("openjdk:8-jre-slim")
+    runRaw("apt-get update && apt-get install -y --no-install-recommends unzip")
     add(zipFile, file("/opt/kafka-manager.zip"))
     workDir("/opt")
     run("unzip", "kafka-manager.zip")
@@ -93,7 +94,7 @@ imageNames in docker := Seq(
 )
 
 buildOptions in docker := BuildOptions(
-  pullBaseImage = BuildOptions.Pull.Always
+  pullBaseImage = BuildOptions.Pull.IfMissing
 )
 
 /*

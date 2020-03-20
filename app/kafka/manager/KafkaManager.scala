@@ -265,6 +265,7 @@ class KafkaManager(akkaConfig: Config) extends Logging {
                  securityProtocol: String,
                  saslMechanism: Option[String],
                  jaasConfig: Option[String],
+                 bootstrapServers: Option[String],
                  logkafkaEnabled: Boolean = false,
                  activeOffsetCacheEnabled: Boolean = false,
                  displaySizeEnabled: Boolean = false): Future[ApiError \/ Unit] =
@@ -277,6 +278,7 @@ class KafkaManager(akkaConfig: Config) extends Logging {
       securityProtocol = securityProtocol,
       saslMechanism = saslMechanism,
       jaasConfig = jaasConfig,
+      bootstrapServers = bootstrapServers,
       jmxEnabled = jmxEnabled,
       jmxUser = jmxUser,
       jmxPass = jmxPass,
@@ -304,6 +306,7 @@ class KafkaManager(akkaConfig: Config) extends Logging {
                     securityProtocol: String,
                     saslMechanism: Option[String],
                     jaasConfig: Option[String],
+                    bootstrapServers: Option[String],
                     logkafkaEnabled: Boolean = false,
                     activeOffsetCacheEnabled: Boolean = false,
                     displaySizeEnabled: Boolean = false): Future[ApiError \/ Unit] =
@@ -316,6 +319,7 @@ class KafkaManager(akkaConfig: Config) extends Logging {
       securityProtocol = securityProtocol,
       saslMechanism = saslMechanism,
       jaasConfig = jaasConfig,
+      bootstrapServers = bootstrapServers,
       jmxEnabled = jmxEnabled,
       jmxUser = jmxUser,
       jmxPass = jmxPass,

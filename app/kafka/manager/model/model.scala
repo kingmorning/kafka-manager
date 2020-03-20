@@ -189,6 +189,7 @@ object ClusterConfig {
             , securityProtocol: String
             , saslMechanism: Option[String]
             , jaasConfig: Option[String]
+            , bootstrapServers: Option[String]
            ) : ClusterConfig = {
     val kafkaVersion = KafkaVersion(version)
     //validate cluster name
@@ -214,15 +215,16 @@ object ClusterConfig {
       , SecurityProtocol(securityProtocol)
       , saslMechanism.flatMap(SASLmechanism.from)
       , jaasConfig
+      , bootstrapServers
     )
   }
 
   def customUnapply(cc: ClusterConfig) : Option[(
-    String, String, String, Int, Boolean, Option[String], Option[String], Boolean, Boolean, Boolean, Boolean, Boolean, Boolean, Option[ClusterTuning], String, Option[String], Option[String])] = {
+    String, String, String, Int, Boolean, Option[String], Option[String], Boolean, Boolean, Boolean, Boolean, Boolean, Boolean, Option[ClusterTuning], String, Option[String], Option[String], Option[String])] = {
     Some((
       cc.name, cc.version.toString, cc.curatorConfig.zkConnect, cc.curatorConfig.zkMaxRetry,
       cc.jmxEnabled, cc.jmxUser, cc.jmxPass, cc.jmxSsl, cc.pollConsumers, cc.filterConsumers,
-      cc.logkafkaEnabled, cc.activeOffsetCacheEnabled, cc.displaySizeEnabled, cc.tuning, cc.securityProtocol.stringId, cc.saslMechanism.map(_.stringId), cc.jaasConfig
+      cc.logkafkaEnabled, cc.activeOffsetCacheEnabled, cc.displaySizeEnabled, cc.tuning, cc.securityProtocol.stringId, cc.saslMechanism.map(_.stringId), cc.jaasConfig, cc.bootstrapServers
       )
     )
   }
@@ -268,6 +270,7 @@ object ClusterConfig {
       :: ("securityProtocol" -> toJSON(config.securityProtocol.stringId))
       :: ("saslMechanism" -> toJSON(config.saslMechanism.map(_.stringId)))
       :: ("jaasConfig" -> toJSON(config.jaasConfig))
+      :: ("bootstrapServers" -> toJSON(config.bootstrapServers))
       :: Nil)
     compact(render(json)).getBytes(StandardCharsets.UTF_8)
   }
@@ -296,6 +299,7 @@ object ClusterConfig {
           val saslMechanismString = fieldExtended[Option[String]]("saslMechanism")(json)
           val saslMechanism = saslMechanismString.map(_.flatMap(SASLmechanism.from))
           val jaasConfig = fieldExtended[Option[String]]("jaasConfig")(json)
+          val bootstrapServers = fieldExtended[Option[String]]("bootstrapServers")(json)
 
           ClusterConfig.apply(
             name,
@@ -313,7 +317,8 @@ object ClusterConfig {
             clusterTuning.getOrElse(None),
             securityProtocol,
             saslMechanism.getOrElse(None),
-            jaasConfig.getOrElse(None)
+            jaasConfig.getOrElse(None),
+            bootstrapServers.getOrElse(None)
           )
       }
 
@@ -446,6 +451,7 @@ case class ClusterConfig (name: String
                           , securityProtocol: SecurityProtocol
                           , saslMechanism: Option[SASLmechanism]
                           , jaasConfig: Option[String]
+                          , bootstrapServers: Option[String]
                          )
 
 sealed trait SecurityProtocol {
